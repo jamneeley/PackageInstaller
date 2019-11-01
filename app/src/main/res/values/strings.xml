@@ -1,3 +1,10 @@
 <resources>
-    <string name="app_name">PackageInstaller</string>
+    <string name="app_name">TestProject</string>
+
+    <!--    LAYOUT-->
+    <string name="download">Download</string>
+    <string name="raw_data">Raw Data</string>
+    <string name="download_order">Download Order</string>
+
+
 </resources>
