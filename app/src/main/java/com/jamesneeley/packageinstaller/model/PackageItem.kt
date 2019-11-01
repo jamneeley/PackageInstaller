@@ -1,3 +1,3 @@
 package com.jamesneeley.packageinstaller.model
 
-data class PackageItem(val name: String, val dependency: PackageItem?)
+data class PackageItem(val name: String, var dependency: PackageItem?)

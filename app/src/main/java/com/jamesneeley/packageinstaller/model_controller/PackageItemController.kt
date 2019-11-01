@@ -2,6 +2,7 @@ package com.jamesneeley.packageinstaller.model_controller
 
 import com.jamesneeley.packageinstaller.misc.PackageError
 import com.jamesneeley.packageinstaller.misc.TestCycle
+import com.jamesneeley.packageinstaller.model.PackageItem
 import java.lang.StringBuilder
 
 object PackageItemController {
@@ -136,5 +137,188 @@ object PackageItemController {
         }
 
         return stringBuilder.toString()
+    }
+
+
+    fun getDataSetDownloadOrder(cycle: TestCycle): String? {
+
+        val downloadedData =  when (cycle) {
+            TestCycle.A -> dataSetA
+            TestCycle.B -> dataSetB
+            TestCycle.C -> dataSetC
+            TestCycle.D -> dataSetD
+            TestCycle.E -> dataSetE
+        }
+
+        val errorCheck = checkForDataErrors(downloadedData)
+        if (errorCheck.isNullOrEmpty()) {
+            return null
+        }
+
+        val cycleCheck =
+            combinePackages(errorCheck.toSet()) //casting to set gets rid of exact duplicates which are ok
+        if (cycleCheck.isNullOrEmpty()) {
+            return null
+        }
+
+        val stringBuilder = StringBuilder()
+
+        for (i in 0 until cycleCheck.count()) {
+
+            if (i == cycleCheck.count() - 1) {
+                stringBuilder.append(extractStringFromPackageChain(cycleCheck.elementAt(i), arrayListOf()))
+            } else {
+                stringBuilder.append("${extractStringFromPackageChain(cycleCheck.elementAt(i), arrayListOf())}, ")
+            }
+        }
+
+        return stringBuilder.toString()
+    }
+
+
+    private fun checkForDataErrors(dataArray: ArrayList<String>): ArrayList<PackageItem>? {
+
+        val packageArray = arrayListOf<PackageItem>()
+        dataArray.forEach { item ->
+
+            val packageName: String
+            var dependencyName: String? = null
+
+
+            if (!item.contains(SEPARATOR)) {
+                errorLog = PackageError.MISSING_SEPARATOR
+                return null
+            } else {
+
+
+                if (!doesItemContainOneSeparator(item)) {
+                    errorLog = PackageError.MULTIPLE_SEPARATORS
+                    return null
+                }
+
+                val index = item.indexOf(SEPARATOR)
+
+                if (index == 0) {
+                    errorLog = PackageError.PACKAGE_NAME
+                    return null
+                }
+
+                packageName = item.substring(0, index)
+
+                val separatorCount = SEPARATOR.count()
+
+                if (index != item.count() - separatorCount) {
+                    //there is a dependency
+                    dependencyName = item.substring(index + separatorCount)
+                }
+            }
+
+
+            val dependency = if (dependencyName != null) PackageItem(dependencyName, null) else null
+            packageArray.add(PackageItem(packageName, dependency))
+
+        }
+
+
+        return if (packageArray.isNotEmpty()) packageArray else null
+    }
+
+
+    private fun doesItemContainOneSeparator(item: String): Boolean {
+
+        val regex = Regex(SEPARATOR)
+
+        val matches = regex.findAll(item)
+
+        val count = matches.count()
+        if (count >  1) {
+            return false
+        }
+
+        return true
+    }
+
+
+    private fun combinePackages(dataSet: Set<PackageItem>): Set<PackageItem>? {
+        val mutableSet = dataSet
+
+        val count = mutableSet.count()
+
+        for (i in 0 until count) {
+            for (j in 0 until count) {
+
+                if (i == j) {
+                    continue
+                }
+
+                val packageItem = mutableSet.elementAt(i)
+                val comparingItem = mutableSet.elementAt(j)
+
+                if (packageItem.name == comparingItem.name) {
+                    /**
+                     * we already checked for exact duplicates, this means that there are two packages with different dependencies
+                     * packages aren't supposed to have multiple dependencies, at least in the scope of this project.
+                     */
+
+                    errorLog = PackageError.DUPLICATION
+                    return null
+                }
+
+
+                if (packageItem.dependency != null) {
+
+                    val endPackage = getEndOfDependencyChain(packageItem)
+
+                    if (endPackage.name == comparingItem.name) {
+
+                        if (comparingItem.dependency != null) {
+                            if (doesPackageHaveCycle(packageItem, comparingItem.dependency!!.name)) {
+                                errorLog = PackageError.CYCLE
+                                return null
+                            }
+                        }
+
+                        endPackage.dependency = comparingItem.dependency
+
+                        return combinePackages(mutableSet.minus(comparingItem))
+                    }
+                } else {
+                    break
+                }
+            }
+        }
+        return mutableSet
+    }
+
+
+    fun getEndOfDependencyChain(item: PackageItem): PackageItem {
+        return if (item.dependency == null) {
+            item
+        } else {
+            getEndOfDependencyChain(item.dependency!!)
+        }
+    }
+
+
+    fun doesPackageHaveCycle(packageItem: PackageItem, checkItemName: String): Boolean {
+        val dependency = packageItem.dependency
+
+        return when {
+            (packageItem.name == checkItemName) -> true
+            (dependency == null) -> false
+            else -> doesPackageHaveCycle(dependency, checkItemName)
+
+        }
+    }
+
+    fun extractStringFromPackageChain(item: PackageItem, chain: ArrayList<String>): String {
+        val dependency = item.dependency
+        chain.add(0, item.name)
+
+        return if (dependency == null) {
+            chain.joinToString()
+        } else {
+            extractStringFromPackageChain(dependency, chain)
+        }
     }
 }
