@@ -10,12 +10,14 @@ import org.junit.Rule
 import org.junit.Test
 
 import androidx.test.rule.ActivityTestRule
+import com.jamesneeley.packageinstaller.view_controller.MainActivity
 
 
 class MainActivityTest {
 
     @get:Rule
-    val mActivityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
+    val mActivityRule: ActivityTestRule<MainActivity> = ActivityTestRule(
+        MainActivity::class.java)
 
     private var mainActivity: MainActivity? = null
 

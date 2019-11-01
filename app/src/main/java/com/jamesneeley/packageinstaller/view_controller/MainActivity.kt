@@ -1,7 +1,8 @@
-package com.jamesneeley.packageinstaller
+package com.jamesneeley.packageinstaller.view_controller
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.jamesneeley.packageinstaller.R
 
 class MainActivity : AppCompatActivity() {
 
