@@ -1,5 +1,13 @@
 <resources>
-    <string name="app_name">TestProject</string>
+    <string name="app_name">PackageInstaller</string>
+
+    <!--    PREFERENCES-->
+    <string name="preference_file_key">com.james_neeley.package_installer.preference_file_key</string>
+    <string name="has_seen_instructions">com.james_neeley.package_installer.has_seen_instruction_alert_preference</string>
+
+    <!--    ALERTS-->
+    <string name="tap_button_instructions">Tap the button to cycle through different test cases</string>
+    <string name="dismiss">Dismiss</string>
 
     <!--    LAYOUT-->
     <string name="download">Download</string>
