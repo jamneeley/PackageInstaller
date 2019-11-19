@@ -10,8 +10,6 @@ import org.junit.Assert.*
 
 class PackageItemControllerTest {
 
-
-
     private val returnA =
         "\"KittenService: \"\n\"Leetmeme: Cyberportal\"\n\"Cyberportal: Ice\"\n\"CamelCaser: KittenService\"\n\"Fraudstream: Leetmeme\"\n\"Ice: \"\n"
     private val returnB =
@@ -27,19 +25,13 @@ class PackageItemControllerTest {
     private val returnG =
         "\"E: A\"\n\"F: B\"\n\"B: C\"\n\"C: D\"\n\"G: D\"\n\"A: G\"\n\"D: \"\n"
 
-
-
-
-
     private val returnOrderA = "KittenService, CamelCaser, Ice, Cyberportal, Leetmeme, Fraudstream"
     private val returnOrderB = null
     private val returnOrderC = null
     private val returnOrderD = "KittenService, CamelCaser, Ice, Cyberportal, Leetmeme, Fraudstream"
     private val returnOrderE = null
-
     private val returnOrderF = "C, A, B"
     private val returnOrderG = "D, G, A, E, C, B, F"
-
 
     private val packageChain =
         PackageItem(
@@ -58,8 +50,8 @@ class PackageItemControllerTest {
                 )
             )
         )
-    private val packageChainString = "nameOne, nameTwo, nameThree, nameFour, nameFive, nameSix"
 
+    private val packageChainString = mutableListOf("nameOne", "nameTwo", "nameThree", "nameFour", "nameFive", "nameSix")
 
     @Test
     fun get_data_set_order_test() {
@@ -68,17 +60,19 @@ class PackageItemControllerTest {
         assertEquals(PackageItemController.getDataSetDownloadOrder(TestCycle.C), returnOrderC)
         assertEquals(PackageItemController.getDataSetDownloadOrder(TestCycle.D), returnOrderD)
         assertEquals(PackageItemController.getDataSetDownloadOrder(TestCycle.E), returnOrderE)
-        assertEquals(PackageItemController.getDataSetDownloadOrder(TestCycle.E), returnOrderF)
-        assertEquals(PackageItemController.getDataSetDownloadOrder(TestCycle.E), returnOrderG)
+        assertEquals(PackageItemController.getDataSetDownloadOrder(TestCycle.F), returnOrderF)
+        assertEquals(PackageItemController.getDataSetDownloadOrder(TestCycle.G), returnOrderG)
     }
 
     @Test
-    fun get_data_set() {
-        assertEquals(PackageItemController.getDataSet(TestCycle.A), returnA)
-        assertEquals(PackageItemController.getDataSet(TestCycle.B), returnB)
-        assertEquals(PackageItemController.getDataSet(TestCycle.C), returnC)
-        assertEquals(PackageItemController.getDataSet(TestCycle.D), returnD)
-        assertEquals(PackageItemController.getDataSet(TestCycle.E), returnE)
+    fun get_data_set_string() {
+        assertEquals(PackageItemController.getDataSetString(TestCycle.A), returnA)
+        assertEquals(PackageItemController.getDataSetString(TestCycle.B), returnB)
+        assertEquals(PackageItemController.getDataSetString(TestCycle.C), returnC)
+        assertEquals(PackageItemController.getDataSetString(TestCycle.D), returnD)
+        assertEquals(PackageItemController.getDataSetString(TestCycle.E), returnE)
+        assertEquals(PackageItemController.getDataSetString(TestCycle.F), returnF)
+        assertEquals(PackageItemController.getDataSetString(TestCycle.G), returnG)
     }
 
     @Test
@@ -92,7 +86,7 @@ class PackageItemControllerTest {
     @Test
     fun extract_string_from_package() {
         assertEquals(
-            PackageItemController.extractStringFromPackageChain(packageChain, arrayListOf()),
+            PackageItemController.extractStringFromPackageItem(packageChain, arrayListOf()),
             packageChainString
         )
     }
@@ -105,6 +99,5 @@ class PackageItemControllerTest {
         assertEquals(PackageItemController.doesPackageHaveCycle(packageChain, "nameFour"), true)
         assertEquals(PackageItemController.doesPackageHaveCycle(packageChain, "nameFive"), true)
         assertEquals(PackageItemController.doesPackageHaveCycle(packageChain, "Garbage"), false)
-
     }
 }

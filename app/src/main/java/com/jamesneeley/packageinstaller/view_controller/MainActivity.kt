@@ -21,7 +21,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var rawDataTextView: TextView
     private lateinit var resultTextView: TextView
 
-
     private var lastTestCycle = TestCycle.A
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,7 +63,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun downloadPackage() {
-        packageDataStructureTextView.text = PackageItemController.getDataSet(lastTestCycle)
+        packageDataStructureTextView.text = PackageItemController.getDataSetString(lastTestCycle)
         val cycleName = lastTestCycle.name
         val rawDataString = "${getString(R.string.raw_data)} - $cycleName"
         val resultString = "${getString(R.string.download_order)} - $cycleName"
