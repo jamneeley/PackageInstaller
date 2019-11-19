@@ -91,7 +91,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             TestCycle.B -> TestCycle.C
             TestCycle.C -> TestCycle.D
             TestCycle.D -> TestCycle.E
-            TestCycle.E -> TestCycle.A
+            TestCycle.E -> TestCycle.F
+            TestCycle.F -> TestCycle.G
+            TestCycle.G -> TestCycle.A
         }
     }
 }

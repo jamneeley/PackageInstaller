@@ -112,6 +112,32 @@ object PackageItemController {
         "Ice: "
     )
 
+
+    /**
+     * Failing test case #1
+     */
+
+    private val dataSetF = arrayListOf(
+        "A: C",
+        "B: C",
+        "C: "
+    )
+
+    /**
+     * Failing test case #2
+     */
+    private val dataSetG = arrayListOf(
+        "E: A",
+        "F: B",
+        "B: C",
+        "C: D",
+        "G: D",
+        "A: G",
+        "D: "
+    )
+
+
+
     private const val SEPARATOR = ": "
     private var errorLog = PackageError.NONE
 
@@ -127,6 +153,8 @@ object PackageItemController {
             TestCycle.C -> dataSetC
             TestCycle.D -> dataSetD
             TestCycle.E -> dataSetE
+            TestCycle.F -> dataSetF
+            TestCycle.G -> dataSetG
         }
 
 
@@ -148,6 +176,8 @@ object PackageItemController {
             TestCycle.C -> dataSetC
             TestCycle.D -> dataSetD
             TestCycle.E -> dataSetE
+            TestCycle.F -> dataSetF
+            TestCycle.G -> dataSetG
         }
 
         val errorCheck = checkForDataErrors(downloadedData)

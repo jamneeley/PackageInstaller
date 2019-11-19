@@ -22,12 +22,24 @@ class PackageItemControllerTest {
         "\"KittenService: \"\n\"Leetmeme: Cyberportal\"\n\"Leetmeme: Cyberportal\"\n\"Cyberportal: Ice\"\n\"CamelCaser: KittenService\"\n\"Fraudstream: Leetmeme\"\n\"Ice: \"\n"
     private val returnE =
         "\"KittenService: \"\n\"Leetmeme: Cyberportal\"\n\"Cyberportal: Ice\"\n\"CamelCaser: KittenService\"\n\"Fraudstream: Leetmeme\"\n\"Fraudstream: Ice\"\n\"Ice: \"\n"
+    private val returnF =
+        "\"A: C\"\n\"B: C\"\n\"C: \"\n"
+    private val returnG =
+        "\"E: A\"\n\"F: B\"\n\"B: C\"\n\"C: D\"\n\"G: D\"\n\"A: G\"\n\"D: \"\n"
+
+
+
+
 
     private val returnOrderA = "KittenService, CamelCaser, Ice, Cyberportal, Leetmeme, Fraudstream"
     private val returnOrderB = null
     private val returnOrderC = null
     private val returnOrderD = "KittenService, CamelCaser, Ice, Cyberportal, Leetmeme, Fraudstream"
     private val returnOrderE = null
+
+    private val returnOrderF = "C, A, B"
+    private val returnOrderG = "D, G, A, E, C, B, F"
+
 
     private val packageChain =
         PackageItem(
@@ -56,6 +68,8 @@ class PackageItemControllerTest {
         assertEquals(PackageItemController.getDataSetDownloadOrder(TestCycle.C), returnOrderC)
         assertEquals(PackageItemController.getDataSetDownloadOrder(TestCycle.D), returnOrderD)
         assertEquals(PackageItemController.getDataSetDownloadOrder(TestCycle.E), returnOrderE)
+        assertEquals(PackageItemController.getDataSetDownloadOrder(TestCycle.E), returnOrderF)
+        assertEquals(PackageItemController.getDataSetDownloadOrder(TestCycle.E), returnOrderG)
     }
 
     @Test

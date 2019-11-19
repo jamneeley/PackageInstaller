@@ -5,7 +5,9 @@ enum class TestCycle {
     B,
     C,
     D,
-    E
+    E,
+    F,
+    G
 }
 
 enum class PackageError {
