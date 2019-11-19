@@ -4,6 +4,7 @@ import com.jamesneeley.packageinstaller.misc.PackageError
 import com.jamesneeley.packageinstaller.misc.TestCycle
 import com.jamesneeley.packageinstaller.model.PackageItem
 import java.lang.StringBuilder
+import kotlin.collections.ArrayList
 
 object PackageItemController {
 
@@ -28,10 +29,9 @@ object PackageItemController {
     Make sure if there is a duplicate it has the same dependencies otherwise fail
     Make sure there are no cycles
 
+    Make sure multiple packages can have the same dependency and that the resulting package order has only one example of each package
+
      */
-
-
-
 
 
     /**
@@ -112,6 +112,34 @@ object PackageItemController {
         "Ice: "
     )
 
+
+    /**
+     * Failing test case #1
+     * Several packages with the same dependency
+     */
+
+
+    private val dataSetF = arrayListOf(
+        "A: C",
+        "B: C",
+        "C: "
+    )
+
+    /**
+     * Failing test case #2
+     * Several packages with the same dependency
+     */
+    private val dataSetG = arrayListOf(
+        "E: A",
+        "F: B",
+        "B: C",
+        "C: D",
+        "G: D",
+        "A: G",
+        "D: "
+    )
+
+
     private const val SEPARATOR = ": "
     private var errorLog = PackageError.NONE
 
@@ -119,16 +147,23 @@ object PackageItemController {
         return errorLog
     }
 
-    fun getDataSet(cycle: TestCycle): String {
 
-        val packageArray = when (cycle) {
+    private fun getDataSet(cycle: TestCycle): ArrayList<String> {
+        return when (cycle) {
             TestCycle.A -> dataSetA
             TestCycle.B -> dataSetB
             TestCycle.C -> dataSetC
             TestCycle.D -> dataSetD
             TestCycle.E -> dataSetE
+            TestCycle.F -> dataSetF
+            TestCycle.G -> dataSetG
         }
+    }
 
+
+    fun getDataSetString(cycle: TestCycle): String {
+
+        val packageArray = getDataSet(cycle)
 
         val stringBuilder = StringBuilder()
 
@@ -142,13 +177,7 @@ object PackageItemController {
 
     fun getDataSetDownloadOrder(cycle: TestCycle): String? {
 
-        val downloadedData =  when (cycle) {
-            TestCycle.A -> dataSetA
-            TestCycle.B -> dataSetB
-            TestCycle.C -> dataSetC
-            TestCycle.D -> dataSetD
-            TestCycle.E -> dataSetE
-        }
+        val downloadedData = getDataSet(cycle)
 
         val errorCheck = checkForDataErrors(downloadedData)
         if (errorCheck.isNullOrEmpty()) {
@@ -157,22 +186,12 @@ object PackageItemController {
 
         val cycleCheck =
             combinePackages(errorCheck.toSet()) //casting to set gets rid of exact duplicates which are ok
+
         if (cycleCheck.isNullOrEmpty()) {
             return null
         }
 
-        val stringBuilder = StringBuilder()
-
-        for (i in 0 until cycleCheck.count()) {
-
-            if (i == cycleCheck.count() - 1) {
-                stringBuilder.append(extractStringFromPackageChain(cycleCheck.elementAt(i), arrayListOf()))
-            } else {
-                stringBuilder.append("${extractStringFromPackageChain(cycleCheck.elementAt(i), arrayListOf())}, ")
-            }
-        }
-
-        return stringBuilder.toString()
+        return extractStringFromTotalSet(cycleCheck)
     }
 
 
@@ -213,12 +232,10 @@ object PackageItemController {
                 }
             }
 
-
             val dependency = if (dependencyName != null) PackageItem(dependencyName, null) else null
             packageArray.add(PackageItem(packageName, dependency))
 
         }
-
 
         return if (packageArray.isNotEmpty()) packageArray else null
     }
@@ -231,7 +248,7 @@ object PackageItemController {
         val matches = regex.findAll(item)
 
         val count = matches.count()
-        if (count >  1) {
+        if (count > 1) {
             return false
         }
 
@@ -272,7 +289,11 @@ object PackageItemController {
                     if (endPackage.name == comparingItem.name) {
 
                         if (comparingItem.dependency != null) {
-                            if (doesPackageHaveCycle(packageItem, comparingItem.dependency!!.name)) {
+                            if (doesPackageHaveCycle(
+                                    packageItem,
+                                    comparingItem.dependency!!.name
+                                )
+                            ) {
                                 errorLog = PackageError.CYCLE
                                 return null
                             }
@@ -307,18 +328,53 @@ object PackageItemController {
             (packageItem.name == checkItemName) -> true
             (dependency == null) -> false
             else -> doesPackageHaveCycle(dependency, checkItemName)
-
         }
     }
 
-    fun extractStringFromPackageChain(item: PackageItem, chain: ArrayList<String>): String {
-        val dependency = item.dependency
-        chain.add(0, item.name)
 
-        return if (dependency == null) {
-            chain.joinToString()
+    private fun extractStringFromTotalSet(set: Set<PackageItem>): String {
+        var arrayOfPackages = mutableListOf<String>()
+
+        for (item in set) {
+            arrayOfPackages = extractStringFromPackageItem(item, arrayOfPackages)
+        }
+
+        return arrayOfPackages.joinToString()
+    }
+
+    private val packageChain = mutableListOf<String>() //keep this variable outside of the scope of the recursive function to maintain state
+
+    fun extractStringFromPackageItem(
+        item: PackageItem,
+        totalChain: MutableList<String>
+    ): MutableList<String> {
+
+        /**
+         * add each package item to a separate mutableList so we can reverse it without affecting any previously added items in the totalChain
+         * we then add each of those items to the total chain after all is said and done.
+         */
+
+        if (totalChain.isEmpty()) {
+            packageChain.add(item.name)
         } else {
-            extractStringFromPackageChain(dependency, chain)
+            if (!totalChain.contains(item.name)) {
+                packageChain.add(item.name)
+            }
+        }
+
+        val dependency = item.dependency
+        return if (dependency == null) {
+
+            packageChain.reverse()
+
+            for (name in packageChain) {
+                totalChain.add(name)
+            }
+
+            packageChain.clear()
+            totalChain
+        } else {
+            extractStringFromPackageItem(dependency, totalChain)
         }
     }
 }
